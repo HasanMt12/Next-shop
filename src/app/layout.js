@@ -1,5 +1,8 @@
+import Navbar from '@/Shared/Navbar/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import Footer from '@/Shared/Footer'
+import HeadlineNav from '@/Shared/headlineNav/HeadlineNav'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,7 +14,18 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+      
+       <div className="flex min-h-screen flex-col justify-between">
+            <div>
+              <HeadlineNav></HeadlineNav>
+              <Navbar />
+              <main className="mt-5">{children}</main>
+            </div>
+            <Footer />
+          </div>
+      
+      </body>
     </html>
   )
 }

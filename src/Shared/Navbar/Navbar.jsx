@@ -1,27 +1,45 @@
 "use client";
 import Link from "next/link";
 import NavLink from "./NavLink";
-
+import { toast } from "react-hot-toast";
 import {  useState } from "react";
 import Image from "next/image";
-const navData = [
-  {
-    path: "/",
-    title: "Home",
-  },
-  {
-    path: "/about",
-    title: "About",
-  },
-  {
-    path: "/blogs",
-    title: "Blogs",
-  },
- 
-];
+import useAuth from "@/hooks/useAuth";
+import { afterLoginNavData, beforeLoginNavData } from "@/Data/navData";
+import { usePathname, useRouter } from "next/navigation";
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    
+    const { user, logout } = useAuth();
+  const { uid, displayName, photoURL } = user || {};
+
+  const navData = uid ? afterLoginNavData : beforeLoginNavData;
+ 
+  const { replace, refresh } = useRouter();
+  const path = usePathname();
+
+  const handleLogout = async () => {
+    const toastId = toast.loading("Loading...");
+    try {
+      await logout();
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      await res.json();
+      if (path.includes("/dashboard") || path.includes("/profile")) {
+        replace(`/login?redirectUrl=${path}`);
+      }
+      toast.dismiss(toastId);
+      toast.success("Successfully logout!");
+      startTransition(() => {
+        refresh();
+      });
+    } catch (error) {
+      toast.error("Successfully not logout!");
+      toast.dismiss(toastId);
+    }
+  };
       
     return (
         <div className="sticky top-0 z-10 ">
@@ -52,7 +70,55 @@ const Navbar = () => {
               </NavLink>
             </li>
           ))}
+
+                  {uid && (
+          <div className="dropdown-end dropdown">
+            <label tabIndex={0} className="btn-ghost btn-circle avatar btn">
+              <div className="w-10 rounded-full">
+                <Image
+                  alt="user-logo"
+                  title={displayName}
+                  src={
+                    photoURL ||
+                    "https://i.ibb.co/0QZCv5C/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black.png"
+                  }
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-full"
+                />
+              </div>
+            </label>
+            <ul
+              tabIndex={0}
+              className="menu-compact dropdown-content menu rounded-box mt-3 w-52 bg-base-100 p-2 shadow"
+            >
+              <li className="mb-2 mt-1 text-center font-semibold">
+                {displayName}
+              </li>
+              <div className="divider my-0"></div>
+              <li className="mb-2">
+                <NavLink
+                  href="/profile"
+                  className="text-lg"
+                  activeClassName="text-blue-500"
+                >
+                  Profile
+                </NavLink>
+              </li>
+              <li className="">
+                <button
+                  onClick={handleLogout}
+                  className="btn-warning btn content-center text-white"
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
               </ul>
+
+              
 
               <div className="lg:hidden ">
                 <button

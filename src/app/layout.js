@@ -3,6 +3,8 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import Footer from '@/Shared/Footer'
 import HeadlineNav from '@/Shared/headlineNav/HeadlineNav'
+import Providers from '@/provider'
+import Toaster from '@/components/Toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,18 +15,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html data-theme="cupcake" lang = "en"  > 
+      <body className = {inter.className}>
+      <Providers>
       
        <div className="flex min-h-screen flex-col justify-between">
             <div>
               <HeadlineNav></HeadlineNav>
               <Navbar />
-              <main className="mt-5">{children}</main>
+              <main className="">{children}</main>
             </div>
             <Footer />
           </div>
-      
+     </Providers>
+    <Toaster />
       </body>
     </html>
   )
